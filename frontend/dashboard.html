@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fuel Tracker Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Fuel Tracker Dashboard 🚗</h2>
+    <button onclick="logout()">Logout</button>
+
+    <hr>
+
+    <h3>Add Vehicle</h3>
+    <input type="text" id="vehicle_model" placeholder="Vehicle Model">
+    <input type="number" id="engine_size" placeholder="Engine Size">
+    <input type="text" id="fuel_type" placeholder="Fuel Type">
+    <button onclick="addVehicle()">Add Vehicle</button>
+
+    <hr>
+
+    <h3>Add Trip</h3>
+
+    <label>Select Vehicle:</label>
+    <select id="vehicle_select"></select>
+
+    <input type="number" id="distance" placeholder="Total Distance (km)">
+    <input type="number" id="avg_speed" placeholder="Average Speed">
+    <input type="number" id="max_speed" placeholder="Max Speed">
+    <input type="number" id="avg_acc" placeholder="Avg Acceleration">
+    <input type="number" id="duration" placeholder="Trip Duration (seconds)">
+    <button onclick="addTrip()">Add Trip</button>
+
+    <hr>
+
+    <h3>Your Trips</h3>
+    <button onclick="loadTrips()">Refresh Trips</button>
+
+    <table border="1" width="100%" id="tripTable">
+        <thead>
+            <tr>
+                <th>Distance</th>
+                <th>Avg Speed</th>
+                <th>Max Speed</th>
+                <th>Score</th>
+                <th>Recommendation</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+</div>
+
+<script src="script.js"></script>
+<script>
+    loadVehicles();
+    loadTrips();
+</script>
+
+</body>
+</html>
