@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
+from datetime import datetime
 from app.database import Base
 
 
@@ -47,6 +48,11 @@ class Trip(Base):
     start_time = Column(DateTime)
     end_time = Column(DateTime)
 
+    start_lat = Column(Float, nullable=True)
+    start_lng = Column(Float, nullable=True)
+    end_lat = Column(Float, nullable=True)
+    end_lng = Column(Float, nullable=True)
+
     total_distance = Column(Float)
     avg_speed = Column(Float)
     max_speed = Column(Float)
@@ -56,4 +62,24 @@ class Trip(Base):
     efficiency_score = Column(Integer)
     recommendation = Column(String)
 
+    is_active = Column(Integer, default=0)
+
     vehicle = relationship("Vehicle", back_populates="trips")
+    locations = relationship("TripLocation", back_populates="trip")
+
+
+# -------------------------
+# TRIP LOCATION MODEL (GPS tracking)
+# -------------------------
+class TripLocation(Base):
+    __tablename__ = "trip_locations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    trip_id = Column(Integer, ForeignKey("trips.id"))
+
+    latitude = Column(Float)
+    longitude = Column(Float)
+    speed = Column(Float)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
+    trip = relationship("Trip", back_populates="locations")
