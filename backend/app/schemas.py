@@ -3,9 +3,6 @@ from datetime import datetime
 from typing import Optional
 
 
-# -------------------------
-# USER SCHEMAS
-# -------------------------
 class UserCreate(BaseModel):
     name: str
     email: EmailStr
@@ -21,17 +18,11 @@ class UserResponse(BaseModel):
         from_attributes = True
 
 
-# -------------------------
-# LOGIN SCHEMAS
-# -------------------------
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str
 
 
-# -------------------------
-# VEHICLE SCHEMAS
-# -------------------------
 class VehicleCreate(BaseModel):
     vehicle_model: str
     engine_size: float
@@ -48,9 +39,6 @@ class VehicleResponse(BaseModel):
         from_attributes = True
 
 
-# -------------------------
-# TRIP SCHEMAS (manual entry - existing)
-# -------------------------
 class TripCreate(BaseModel):
     vehicle_id: int
     start_time: datetime
@@ -82,9 +70,6 @@ class TripResponse(BaseModel):
         from_attributes = True
 
 
-# -------------------------
-# TRIP START SCHEMA (mobile app)
-# -------------------------
 class TripStartRequest(BaseModel):
     vehicle_id: int
     start_lat: float
@@ -100,9 +85,6 @@ class TripStartResponse(BaseModel):
         from_attributes = True
 
 
-# -------------------------
-# GPS LOCATION SCHEMA
-# -------------------------
 class LocationCreate(BaseModel):
     trip_id: int
     latitude: float
@@ -110,9 +92,6 @@ class LocationCreate(BaseModel):
     speed: float
 
 
-# -------------------------
-# TRIP END SCHEMA
-# -------------------------
 class TripEndRequest(BaseModel):
     trip_id: int
     end_lat: float
@@ -122,3 +101,17 @@ class TripEndRequest(BaseModel):
     max_speed: float
     avg_acceleration: float
     trip_duration: float
+
+
+class VehicleDatabaseResponse(BaseModel):
+    id: int
+    brand: str
+    model: str
+    variant: Optional[str] = None
+    engine_size: Optional[float] = None
+    fuel_type: Optional[str] = None
+    mileage_kmpl: Optional[float] = None
+    body_type: Optional[str] = None
+
+    class Config:
+        from_attributes = True
