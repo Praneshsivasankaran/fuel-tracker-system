@@ -7,6 +7,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from fastapi.middleware.cors import CORSMiddleware
+from app.ml.predictor import predict_fuel
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -277,6 +278,23 @@ def end_trip(data: schemas.TripEndRequest,
         recommendation = "Average driving. " + " | ".join(recommendations[:2])
     else:
         recommendation = "Poor efficiency. " + " | ".join(recommendations[:2])
+
+    # ML Fuel Prediction
+    predicted_fuel = None
+    if vehicle and data.total_distance > 0:
+        try:
+            predicted_fuel = predict_fuel(
+                vehicle.engine_size,
+                vehicle.fuel_type,
+                data.avg_speed,
+                data.max_speed,
+                data.avg_acceleration,
+                data.total_distance,
+                data.trip_duration
+            )
+            recommendation += f" | Predicted fuel: {predicted_fuel}L for {data.total_distance:.1f}km"
+        except Exception:
+            pass
 
     trip.end_time = datetime.utcnow()
     trip.end_lat = data.end_lat
