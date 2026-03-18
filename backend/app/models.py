@@ -4,9 +4,6 @@ from datetime import datetime
 from app.database import Base
 
 
-# -------------------------
-# USER MODEL
-# -------------------------
 class User(Base):
     __tablename__ = "users"
 
@@ -18,9 +15,6 @@ class User(Base):
     vehicles = relationship("Vehicle", back_populates="owner")
 
 
-# -------------------------
-# VEHICLE MODEL
-# -------------------------
 class Vehicle(Base):
     __tablename__ = "vehicles"
 
@@ -35,9 +29,6 @@ class Vehicle(Base):
     trips = relationship("Trip", back_populates="vehicle")
 
 
-# -------------------------
-# TRIP MODEL
-# -------------------------
 class Trip(Base):
     __tablename__ = "trips"
 
@@ -68,9 +59,6 @@ class Trip(Base):
     locations = relationship("TripLocation", back_populates="trip")
 
 
-# -------------------------
-# TRIP LOCATION MODEL (GPS tracking)
-# -------------------------
 class TripLocation(Base):
     __tablename__ = "trip_locations"
 
@@ -83,3 +71,16 @@ class TripLocation(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
 
     trip = relationship("Trip", back_populates="locations")
+
+
+class VehicleDatabase(Base):
+    __tablename__ = "vehicle_database"
+
+    id = Column(Integer, primary_key=True, index=True)
+    brand = Column(String, nullable=False)
+    model = Column(String, nullable=False)
+    variant = Column(String)
+    engine_size = Column(Float)
+    fuel_type = Column(String)
+    mileage_kmpl = Column(Float)
+    body_type = Column(String)
