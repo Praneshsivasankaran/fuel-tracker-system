@@ -406,11 +406,15 @@ def get_vehicle_benchmark(vehicle_db_id: int, db: Session = Depends(get_db)):
     return vehicle
 
 @app.post("/vehicle-database/seed")
-def seed_vehicle_database(db: Session = Depends(get_db)):
+def seed_vehicle_database(db: Session = Depends(get_db), force: bool = False):
+    if force:
+        db.query(models.VehicleDatabase).delete()
+        db.commit()
     existing = db.query(models.VehicleDatabase).count()
     if existing > 0:
-        return {"message": f"Database already has {existing} vehicles"}
+        return {"message": f"Database already has {existing} vehicles. Use force=true to reseed."}
     vehicles = [
+        # --- CARS: Maruti Suzuki ---
         {"brand": "Maruti Suzuki", "model": "Alto K10", "variant": "VXi", "engine_size": 1.0, "fuel_type": "Petrol", "mileage_kmpl": 24.39, "body_type": "Hatchback"},
         {"brand": "Maruti Suzuki", "model": "Swift", "variant": "ZXi", "engine_size": 1.2, "fuel_type": "Petrol", "mileage_kmpl": 22.38, "body_type": "Hatchback"},
         {"brand": "Maruti Suzuki", "model": "Swift", "variant": "ZDi", "engine_size": 1.3, "fuel_type": "Diesel", "mileage_kmpl": 28.4, "body_type": "Hatchback"},
@@ -421,57 +425,100 @@ def seed_vehicle_database(db: Session = Depends(get_db)):
         {"brand": "Maruti Suzuki", "model": "Brezza", "variant": "ZXi", "engine_size": 1.5, "fuel_type": "Petrol", "mileage_kmpl": 20.15, "body_type": "SUV"},
         {"brand": "Maruti Suzuki", "model": "Grand Vitara", "variant": "Alpha", "engine_size": 1.5, "fuel_type": "Petrol", "mileage_kmpl": 21.11, "body_type": "SUV"},
         {"brand": "Maruti Suzuki", "model": "Celerio", "variant": "ZXi", "engine_size": 1.0, "fuel_type": "Petrol", "mileage_kmpl": 25.24, "body_type": "Hatchback"},
+        # --- CARS: Hyundai ---
         {"brand": "Hyundai", "model": "i20", "variant": "Asta", "engine_size": 1.2, "fuel_type": "Petrol", "mileage_kmpl": 20.35, "body_type": "Hatchback"},
         {"brand": "Hyundai", "model": "i20", "variant": "Asta", "engine_size": 1.5, "fuel_type": "Diesel", "mileage_kmpl": 25.2, "body_type": "Hatchback"},
         {"brand": "Hyundai", "model": "Grand i10 Nios", "variant": "Sportz", "engine_size": 1.2, "fuel_type": "Petrol", "mileage_kmpl": 20.7, "body_type": "Hatchback"},
         {"brand": "Hyundai", "model": "Venue", "variant": "SX", "engine_size": 1.5, "fuel_type": "Petrol", "mileage_kmpl": 17.5, "body_type": "SUV"},
-        {"brand": "Hyundai", "model": "Venue", "variant": "SX", "engine_size": 1.5, "fuel_type": "Diesel", "mileage_kmpl": 23.4, "body_type": "SUV"},
         {"brand": "Hyundai", "model": "Creta", "variant": "SX", "engine_size": 1.5, "fuel_type": "Petrol", "mileage_kmpl": 16.8, "body_type": "SUV"},
         {"brand": "Hyundai", "model": "Creta", "variant": "SX", "engine_size": 1.5, "fuel_type": "Diesel", "mileage_kmpl": 21.8, "body_type": "SUV"},
         {"brand": "Hyundai", "model": "Verna", "variant": "SX", "engine_size": 1.5, "fuel_type": "Petrol", "mileage_kmpl": 18.6, "body_type": "Sedan"},
         {"brand": "Hyundai", "model": "Tucson", "variant": "Signature", "engine_size": 2.0, "fuel_type": "Petrol", "mileage_kmpl": 14.2, "body_type": "SUV"},
-        {"brand": "Hyundai", "model": "Aura", "variant": "SX", "engine_size": 1.2, "fuel_type": "Petrol", "mileage_kmpl": 20.5, "body_type": "Sedan"},
+        # --- CARS: Tata ---
         {"brand": "Tata", "model": "Nexon", "variant": "XZ+", "engine_size": 1.2, "fuel_type": "Petrol", "mileage_kmpl": 17.4, "body_type": "SUV"},
         {"brand": "Tata", "model": "Nexon", "variant": "XZ+", "engine_size": 1.5, "fuel_type": "Diesel", "mileage_kmpl": 23.2, "body_type": "SUV"},
         {"brand": "Tata", "model": "Punch", "variant": "Creative", "engine_size": 1.2, "fuel_type": "Petrol", "mileage_kmpl": 18.97, "body_type": "SUV"},
         {"brand": "Tata", "model": "Altroz", "variant": "XZ+", "engine_size": 1.2, "fuel_type": "Petrol", "mileage_kmpl": 22.0, "body_type": "Hatchback"},
-        {"brand": "Tata", "model": "Altroz", "variant": "XZ+", "engine_size": 1.5, "fuel_type": "Diesel", "mileage_kmpl": 25.11, "body_type": "Hatchback"},
         {"brand": "Tata", "model": "Harrier", "variant": "XZ+", "engine_size": 2.0, "fuel_type": "Diesel", "mileage_kmpl": 16.35, "body_type": "SUV"},
         {"brand": "Tata", "model": "Safari", "variant": "XZ+", "engine_size": 2.0, "fuel_type": "Diesel", "mileage_kmpl": 14.5, "body_type": "SUV"},
         {"brand": "Tata", "model": "Tiago", "variant": "XZ+", "engine_size": 1.2, "fuel_type": "Petrol", "mileage_kmpl": 23.84, "body_type": "Hatchback"},
-        {"brand": "Tata", "model": "Tigor", "variant": "XZ+", "engine_size": 1.2, "fuel_type": "Petrol", "mileage_kmpl": 20.3, "body_type": "Sedan"},
+        # --- CARS: Honda ---
         {"brand": "Honda", "model": "City", "variant": "ZX", "engine_size": 1.5, "fuel_type": "Petrol", "mileage_kmpl": 18.4, "body_type": "Sedan"},
-        {"brand": "Honda", "model": "City", "variant": "ZX", "engine_size": 1.5, "fuel_type": "Diesel", "mileage_kmpl": 24.1, "body_type": "Sedan"},
         {"brand": "Honda", "model": "Amaze", "variant": "VX", "engine_size": 1.2, "fuel_type": "Petrol", "mileage_kmpl": 18.6, "body_type": "Sedan"},
         {"brand": "Honda", "model": "Elevate", "variant": "ZX", "engine_size": 1.5, "fuel_type": "Petrol", "mileage_kmpl": 15.31, "body_type": "SUV"},
+        # --- CARS: Toyota ---
         {"brand": "Toyota", "model": "Innova Crysta", "variant": "ZX", "engine_size": 2.4, "fuel_type": "Diesel", "mileage_kmpl": 15.1, "body_type": "MPV"},
         {"brand": "Toyota", "model": "Fortuner", "variant": "4x2", "engine_size": 2.7, "fuel_type": "Petrol", "mileage_kmpl": 10.0, "body_type": "SUV"},
         {"brand": "Toyota", "model": "Glanza", "variant": "V", "engine_size": 1.2, "fuel_type": "Petrol", "mileage_kmpl": 22.35, "body_type": "Hatchback"},
-        {"brand": "Toyota", "model": "Urban Cruiser Hyryder", "variant": "V", "engine_size": 1.5, "fuel_type": "Petrol", "mileage_kmpl": 21.1, "body_type": "SUV"},
+        # --- CARS: Kia ---
         {"brand": "Kia", "model": "Seltos", "variant": "HTX", "engine_size": 1.5, "fuel_type": "Petrol", "mileage_kmpl": 16.8, "body_type": "SUV"},
-        {"brand": "Kia", "model": "Seltos", "variant": "HTX", "engine_size": 1.5, "fuel_type": "Diesel", "mileage_kmpl": 20.7, "body_type": "SUV"},
         {"brand": "Kia", "model": "Sonet", "variant": "HTX", "engine_size": 1.5, "fuel_type": "Petrol", "mileage_kmpl": 18.2, "body_type": "SUV"},
-        {"brand": "Kia", "model": "Sonet", "variant": "HTX", "engine_size": 1.5, "fuel_type": "Diesel", "mileage_kmpl": 24.1, "body_type": "SUV"},
         {"brand": "Kia", "model": "Carens", "variant": "Prestige", "engine_size": 1.5, "fuel_type": "Petrol", "mileage_kmpl": 16.5, "body_type": "MPV"},
+        # --- CARS: Mahindra ---
         {"brand": "Mahindra", "model": "XUV700", "variant": "AX7", "engine_size": 2.0, "fuel_type": "Petrol", "mileage_kmpl": 13.0, "body_type": "SUV"},
         {"brand": "Mahindra", "model": "XUV700", "variant": "AX7", "engine_size": 2.2, "fuel_type": "Diesel", "mileage_kmpl": 16.0, "body_type": "SUV"},
         {"brand": "Mahindra", "model": "Thar", "variant": "LX", "engine_size": 2.0, "fuel_type": "Petrol", "mileage_kmpl": 15.2, "body_type": "SUV"},
-        {"brand": "Mahindra", "model": "Thar", "variant": "LX", "engine_size": 2.2, "fuel_type": "Diesel", "mileage_kmpl": 15.2, "body_type": "SUV"},
-        {"brand": "Mahindra", "model": "Scorpio N", "variant": "Z8L", "engine_size": 2.0, "fuel_type": "Petrol", "mileage_kmpl": 11.99, "body_type": "SUV"},
         {"brand": "Mahindra", "model": "Scorpio N", "variant": "Z8L", "engine_size": 2.2, "fuel_type": "Diesel", "mileage_kmpl": 16.55, "body_type": "SUV"},
-        {"brand": "Mahindra", "model": "XUV300", "variant": "W8", "engine_size": 1.2, "fuel_type": "Petrol", "mileage_kmpl": 17.0, "body_type": "SUV"},
-        {"brand": "Mahindra", "model": "Bolero", "variant": "B6", "engine_size": 1.5, "fuel_type": "Diesel", "mileage_kmpl": 16.0, "body_type": "SUV"},
-        {"brand": "MG", "model": "Hector", "variant": "Sharp", "engine_size": 1.5, "fuel_type": "Petrol", "mileage_kmpl": 14.1, "body_type": "SUV"},
-        {"brand": "MG", "model": "Astor", "variant": "Sharp", "engine_size": 1.5, "fuel_type": "Petrol", "mileage_kmpl": 15.6, "body_type": "SUV"},
+        # --- CARS: Others ---
         {"brand": "Volkswagen", "model": "Taigun", "variant": "Topline", "engine_size": 1.0, "fuel_type": "Petrol", "mileage_kmpl": 19.4, "body_type": "SUV"},
         {"brand": "Volkswagen", "model": "Virtus", "variant": "Topline", "engine_size": 1.0, "fuel_type": "Petrol", "mileage_kmpl": 19.4, "body_type": "Sedan"},
         {"brand": "Skoda", "model": "Kushaq", "variant": "Style", "engine_size": 1.0, "fuel_type": "Petrol", "mileage_kmpl": 20.0, "body_type": "SUV"},
-        {"brand": "Skoda", "model": "Slavia", "variant": "Style", "engine_size": 1.0, "fuel_type": "Petrol", "mileage_kmpl": 20.0, "body_type": "Sedan"},
         {"brand": "Renault", "model": "Kiger", "variant": "RXZ", "engine_size": 1.0, "fuel_type": "Petrol", "mileage_kmpl": 20.5, "body_type": "SUV"},
-        {"brand": "Renault", "model": "Kwid", "variant": "Climber", "engine_size": 1.0, "fuel_type": "Petrol", "mileage_kmpl": 22.3, "body_type": "Hatchback"},
         {"brand": "Nissan", "model": "Magnite", "variant": "XV", "engine_size": 1.0, "fuel_type": "Petrol", "mileage_kmpl": 20.0, "body_type": "SUV"},
-        {"brand": "Citroen", "model": "C3", "variant": "Shine", "engine_size": 1.2, "fuel_type": "Petrol", "mileage_kmpl": 19.8, "body_type": "Hatchback"},
-        {"brand": "Citroen", "model": "C3 Aircross", "variant": "Shine", "engine_size": 1.2, "fuel_type": "Petrol", "mileage_kmpl": 18.7, "body_type": "SUV"},
+        {"brand": "MG", "model": "Hector", "variant": "Sharp", "engine_size": 1.5, "fuel_type": "Petrol", "mileage_kmpl": 14.1, "body_type": "SUV"},
+        # --- BIKES: Royal Enfield ---
+        {"brand": "Royal Enfield", "model": "Classic 350", "variant": "Halcyon", "engine_size": 0.35, "fuel_type": "Petrol", "mileage_kmpl": 35.0, "body_type": "Bike"},
+        {"brand": "Royal Enfield", "model": "Bullet 350", "variant": "Standard", "engine_size": 0.35, "fuel_type": "Petrol", "mileage_kmpl": 36.0, "body_type": "Bike"},
+        {"brand": "Royal Enfield", "model": "Hunter 350", "variant": "Retro", "engine_size": 0.35, "fuel_type": "Petrol", "mileage_kmpl": 36.2, "body_type": "Bike"},
+        {"brand": "Royal Enfield", "model": "Himalayan", "variant": "Base", "engine_size": 0.41, "fuel_type": "Petrol", "mileage_kmpl": 30.0, "body_type": "Bike"},
+        {"brand": "Royal Enfield", "model": "Meteor 350", "variant": "Fireball", "engine_size": 0.35, "fuel_type": "Petrol", "mileage_kmpl": 33.0, "body_type": "Bike"},
+        # --- BIKES: Honda ---
+        {"brand": "Honda", "model": "CB Shine", "variant": "Drum", "engine_size": 0.125, "fuel_type": "Petrol", "mileage_kmpl": 55.0, "body_type": "Bike"},
+        {"brand": "Honda", "model": "SP 125", "variant": "Drum", "engine_size": 0.125, "fuel_type": "Petrol", "mileage_kmpl": 52.0, "body_type": "Bike"},
+        {"brand": "Honda", "model": "Unicorn", "variant": "Standard", "engine_size": 0.16, "fuel_type": "Petrol", "mileage_kmpl": 50.0, "body_type": "Bike"},
+        {"brand": "Honda", "model": "Hornet 2.0", "variant": "Standard", "engine_size": 0.18, "fuel_type": "Petrol", "mileage_kmpl": 43.0, "body_type": "Bike"},
+        {"brand": "Honda", "model": "CB200X", "variant": "Standard", "engine_size": 0.18, "fuel_type": "Petrol", "mileage_kmpl": 40.0, "body_type": "Bike"},
+        # --- BIKES: Bajaj ---
+        {"brand": "Bajaj", "model": "Pulsar 150", "variant": "Twin Disc", "engine_size": 0.15, "fuel_type": "Petrol", "mileage_kmpl": 50.0, "body_type": "Bike"},
+        {"brand": "Bajaj", "model": "Pulsar NS200", "variant": "Standard", "engine_size": 0.2, "fuel_type": "Petrol", "mileage_kmpl": 40.0, "body_type": "Bike"},
+        {"brand": "Bajaj", "model": "Pulsar RS200", "variant": "Standard", "engine_size": 0.2, "fuel_type": "Petrol", "mileage_kmpl": 38.0, "body_type": "Bike"},
+        {"brand": "Bajaj", "model": "Dominar 400", "variant": "Standard", "engine_size": 0.37, "fuel_type": "Petrol", "mileage_kmpl": 32.0, "body_type": "Bike"},
+        {"brand": "Bajaj", "model": "Platina 110", "variant": "Drum", "engine_size": 0.11, "fuel_type": "Petrol", "mileage_kmpl": 70.0, "body_type": "Bike"},
+        # --- BIKES: TVS ---
+        {"brand": "TVS", "model": "Apache RTR 160", "variant": "4V", "engine_size": 0.16, "fuel_type": "Petrol", "mileage_kmpl": 45.0, "body_type": "Bike"},
+        {"brand": "TVS", "model": "Apache RTR 200", "variant": "4V", "engine_size": 0.2, "fuel_type": "Petrol", "mileage_kmpl": 40.0, "body_type": "Bike"},
+        {"brand": "TVS", "model": "Raider 125", "variant": "Disc", "engine_size": 0.125, "fuel_type": "Petrol", "mileage_kmpl": 55.0, "body_type": "Bike"},
+        {"brand": "TVS", "model": "Star City Plus", "variant": "Standard", "engine_size": 0.11, "fuel_type": "Petrol", "mileage_kmpl": 65.0, "body_type": "Bike"},
+        # --- BIKES: Hero ---
+        {"brand": "Hero", "model": "Splendor Plus", "variant": "Standard", "engine_size": 0.1, "fuel_type": "Petrol", "mileage_kmpl": 70.0, "body_type": "Bike"},
+        {"brand": "Hero", "model": "HF Deluxe", "variant": "Standard", "engine_size": 0.1, "fuel_type": "Petrol", "mileage_kmpl": 72.0, "body_type": "Bike"},
+        {"brand": "Hero", "model": "Glamour", "variant": "Disc", "engine_size": 0.125, "fuel_type": "Petrol", "mileage_kmpl": 55.0, "body_type": "Bike"},
+        {"brand": "Hero", "model": "Xtreme 160R", "variant": "Standard", "engine_size": 0.16, "fuel_type": "Petrol", "mileage_kmpl": 45.0, "body_type": "Bike"},
+        {"brand": "Hero", "model": "XPulse 200", "variant": "4V", "engine_size": 0.2, "fuel_type": "Petrol", "mileage_kmpl": 40.0, "body_type": "Bike"},
+        # --- BIKES: Yamaha ---
+        {"brand": "Yamaha", "model": "FZ-S V3", "variant": "Fi", "engine_size": 0.15, "fuel_type": "Petrol", "mileage_kmpl": 45.0, "body_type": "Bike"},
+        {"brand": "Yamaha", "model": "MT-15 V2", "variant": "Standard", "engine_size": 0.155, "fuel_type": "Petrol", "mileage_kmpl": 42.0, "body_type": "Bike"},
+        {"brand": "Yamaha", "model": "R15 V4", "variant": "Standard", "engine_size": 0.155, "fuel_type": "Petrol", "mileage_kmpl": 40.0, "body_type": "Bike"},
+        # --- BIKES: KTM ---
+        {"brand": "KTM", "model": "Duke 200", "variant": "Standard", "engine_size": 0.2, "fuel_type": "Petrol", "mileage_kmpl": 35.0, "body_type": "Bike"},
+        {"brand": "KTM", "model": "Duke 390", "variant": "Standard", "engine_size": 0.37, "fuel_type": "Petrol", "mileage_kmpl": 28.0, "body_type": "Bike"},
+        {"brand": "KTM", "model": "RC 200", "variant": "Standard", "engine_size": 0.2, "fuel_type": "Petrol", "mileage_kmpl": 33.0, "body_type": "Bike"},
+        # --- BIKES: Suzuki ---
+        {"brand": "Suzuki", "model": "Gixxer 150", "variant": "Standard", "engine_size": 0.15, "fuel_type": "Petrol", "mileage_kmpl": 48.0, "body_type": "Bike"},
+        {"brand": "Suzuki", "model": "Gixxer SF 250", "variant": "Standard", "engine_size": 0.25, "fuel_type": "Petrol", "mileage_kmpl": 35.0, "body_type": "Bike"},
+        # --- SCOOTERS ---
+        {"brand": "Honda", "model": "Activa 6G", "variant": "Standard", "engine_size": 0.11, "fuel_type": "Petrol", "mileage_kmpl": 55.0, "body_type": "Scooter"},
+        {"brand": "Honda", "model": "Activa 125", "variant": "Drum", "engine_size": 0.125, "fuel_type": "Petrol", "mileage_kmpl": 51.0, "body_type": "Scooter"},
+        {"brand": "Honda", "model": "Dio", "variant": "Standard", "engine_size": 0.11, "fuel_type": "Petrol", "mileage_kmpl": 53.0, "body_type": "Scooter"},
+        {"brand": "TVS", "model": "Jupiter", "variant": "Classic", "engine_size": 0.11, "fuel_type": "Petrol", "mileage_kmpl": 52.0, "body_type": "Scooter"},
+        {"brand": "TVS", "model": "Ntorq 125", "variant": "Race XP", "engine_size": 0.125, "fuel_type": "Petrol", "mileage_kmpl": 47.0, "body_type": "Scooter"},
+        {"brand": "Suzuki", "model": "Access 125", "variant": "Standard", "engine_size": 0.125, "fuel_type": "Petrol", "mileage_kmpl": 52.0, "body_type": "Scooter"},
+        {"brand": "Suzuki", "model": "Burgman Street", "variant": "Standard", "engine_size": 0.125, "fuel_type": "Petrol", "mileage_kmpl": 48.0, "body_type": "Scooter"},
+        {"brand": "Hero", "model": "Maestro Edge", "variant": "125", "engine_size": 0.125, "fuel_type": "Petrol", "mileage_kmpl": 50.0, "body_type": "Scooter"},
+        {"brand": "Hero", "model": "Pleasure Plus", "variant": "Standard", "engine_size": 0.11, "fuel_type": "Petrol", "mileage_kmpl": 55.0, "body_type": "Scooter"},
+        {"brand": "Yamaha", "model": "Fascino 125", "variant": "Fi", "engine_size": 0.125, "fuel_type": "Petrol", "mileage_kmpl": 50.0, "body_type": "Scooter"},
+        {"brand": "Yamaha", "model": "Ray ZR 125", "variant": "Fi", "engine_size": 0.125, "fuel_type": "Petrol", "mileage_kmpl": 48.0, "body_type": "Scooter"},
+
     ]
     for v in vehicles:
         db.add(models.VehicleDatabase(**v))
