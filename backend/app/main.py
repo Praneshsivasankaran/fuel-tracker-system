@@ -259,3 +259,57 @@ def get_trip_route(trip_id: int,
             for loc in locations
         ]
     }
+# -------------------------
+# ANALYTICS
+# -------------------------
+@app.get("/analytics")
+def get_analytics(db: Session = Depends(get_db),
+                  current_user: models.User = Depends(get_current_user)):
+
+    trips = (
+        db.query(models.Trip)
+        .join(models.Vehicle)
+        .filter(models.Vehicle.user_id == current_user.id)
+        .filter(models.Trip.is_active == 0)
+        .all()
+    )
+
+    total_trips = len(trips)
+    if total_trips == 0:
+        return {
+            "total_trips": 0,
+            "total_distance": 0,
+            "avg_speed": 0,
+            "avg_efficiency": 0,
+            "max_speed_ever": 0,
+            "total_duration": 0,
+            "trips_data": []
+        }
+
+    total_distance = sum(t.total_distance or 0 for t in trips)
+    total_duration = sum(t.trip_duration or 0 for t in trips)
+    avg_speed = sum(t.avg_speed or 0 for t in trips) / total_trips
+    avg_efficiency = sum(t.efficiency_score or 0 for t in trips) / total_trips
+    max_speed_ever = max(t.max_speed or 0 for t in trips)
+
+    trips_data = []
+    for t in trips:
+        trips_data.append({
+            "id": t.id,
+            "distance": t.total_distance or 0,
+            "avg_speed": t.avg_speed or 0,
+            "max_speed": t.max_speed or 0,
+            "efficiency_score": t.efficiency_score or 0,
+            "duration": t.trip_duration or 0,
+            "date": str(t.start_time) if t.start_time else ""
+        })
+
+    return {
+        "total_trips": total_trips,
+        "total_distance": round(total_distance, 2),
+        "avg_speed": round(avg_speed, 1),
+        "avg_efficiency": round(avg_efficiency, 1),
+        "max_speed_ever": round(max_speed_ever, 1),
+        "total_duration": round(total_duration, 1),
+        "trips_data": trips_data
+    }
