@@ -53,6 +53,7 @@ class TripCreate(BaseModel):
 class TripResponse(BaseModel):
     id: int
     vehicle_id: int
+    start_time: Optional[datetime] = None
     total_distance: Optional[float] = None
     avg_speed: Optional[float] = None
     max_speed: Optional[float] = None

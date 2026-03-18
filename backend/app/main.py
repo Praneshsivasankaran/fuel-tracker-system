@@ -115,6 +115,24 @@ def get_my_vehicles(db: Session = Depends(get_db),
                     current_user: models.User = Depends(get_current_user)):
     return db.query(models.Vehicle).filter(models.Vehicle.user_id == current_user.id).all()
 
+@app.delete("/vehicles/{vehicle_id}")
+def delete_vehicle(vehicle_id: int,
+                   db: Session = Depends(get_db),
+                   current_user: models.User = Depends(get_current_user)):
+    vehicle = db.query(models.Vehicle).filter(
+        models.Vehicle.id == vehicle_id,
+        models.Vehicle.user_id == current_user.id
+    ).first()
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    trips = db.query(models.Trip).filter(models.Trip.vehicle_id == vehicle_id).all()
+    for trip in trips:
+        db.query(models.TripLocation).filter(models.TripLocation.trip_id == trip.id).delete()
+    db.query(models.Trip).filter(models.Trip.vehicle_id == vehicle_id).delete()
+    db.delete(vehicle)
+    db.commit()
+    return {"message": "Vehicle deleted successfully"}
+
 @app.post("/trips", response_model=schemas.TripResponse)
 def add_trip(trip: schemas.TripCreate,
              db: Session = Depends(get_db),
