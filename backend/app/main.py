@@ -227,3 +227,35 @@ def end_trip(data: schemas.TripEndRequest,
     db.commit()
     db.refresh(trip)
     return trip
+# -------------------------
+# GET TRIP ROUTE (GPS locations)
+# -------------------------
+@app.get("/trip/{trip_id}/route")
+def get_trip_route(trip_id: int,
+                   db: Session = Depends(get_db),
+                   current_user: models.User = Depends(get_current_user)):
+
+    trip = db.query(models.Trip).filter(models.Trip.id == trip_id).first()
+    if not trip:
+        raise HTTPException(status_code=404, detail="Trip not found")
+
+    locations = db.query(models.TripLocation).filter(
+        models.TripLocation.trip_id == trip_id
+    ).order_by(models.TripLocation.timestamp).all()
+
+    return {
+        "trip_id": trip_id,
+        "start_lat": trip.start_lat,
+        "start_lng": trip.start_lng,
+        "end_lat": trip.end_lat,
+        "end_lng": trip.end_lng,
+        "locations": [
+            {
+                "latitude": loc.latitude,
+                "longitude": loc.longitude,
+                "speed": loc.speed,
+                "timestamp": str(loc.timestamp)
+            }
+            for loc in locations
+        ]
+    }
