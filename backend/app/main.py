@@ -139,7 +139,7 @@ def add_trip(trip: schemas.TripCreate,
              current_user: models.User = Depends(get_current_user)):
     vehicle = db.query(models.Vehicle).filter(
         models.Vehicle.id == trip.vehicle_id,
-        models.Vehicle.user_id == current_user.id
+        moderesponse_modells.Vehicle.user_id == current_user.id
     ).first()
     if not vehicle:
         raise HTTPException(status_code=404, detail="Vehicle not found")
@@ -177,6 +177,23 @@ def get_trips(db: Session = Depends(get_db),
         .filter(models.Vehicle.user_id == current_user.id)
         .all()
     )
+@app.delete("/trips/{trip_id}")
+def delete_trip(trip_id: int,
+                db: Session = Depends(get_db),
+                current_user: models.User = Depends(get_current_user)):
+    trip = db.query(models.Trip).filter(models.Trip.id == trip_id).first()
+    if not trip:
+        raise HTTPException(status_code=404, detail="Trip not found")
+    vehicle = db.query(models.Vehicle).filter(
+        models.Vehicle.id == trip.vehicle_id,
+        models.Vehicle.user_id == current_user.id
+    ).first()
+    if not vehicle:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    db.query(models.TripLocation).filter(models.TripLocation.trip_id == trip_id).delete()
+    db.delete(trip)
+    db.commit()
+    return {"message": "Trip deleted successfully"}
 
 @app.post("/trip/start", response_model=schemas.TripStartResponse)
 def start_trip(data: schemas.TripStartRequest,
