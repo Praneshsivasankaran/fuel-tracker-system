@@ -13,10 +13,7 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Fuel Tracking Application")
 
-origins = [
-    "http://127.0.0.1:5500",
-    "http://localhost:5500"
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -139,7 +136,7 @@ def add_trip(trip: schemas.TripCreate,
              current_user: models.User = Depends(get_current_user)):
     vehicle = db.query(models.Vehicle).filter(
         models.Vehicle.id == trip.vehicle_id,
-        moderesponse_modells.Vehicle.user_id == current_user.id
+        models.Vehicle.user_id == current_user.id
     ).first()
     if not vehicle:
         raise HTTPException(status_code=404, detail="Vehicle not found")
