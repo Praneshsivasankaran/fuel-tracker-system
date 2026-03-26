@@ -120,8 +120,3 @@ These APIs are optimized for integration with chart libraries and analytics dash
 ### Prerequisites
 - Python 3.11+
 - PostgreSQL
-
-### 1️⃣ Clone the Repository
-```bash
-git clone https://github.com/Praneshsivasankaran/fuel-tracker-system.git
-cd fuel-tracker-system
